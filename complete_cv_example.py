@@ -25,7 +25,7 @@ import PIL
 from accelerate import Accelerator
 from timm import create_model
 from torchvision.transforms import Compose, RandomResizedCrop, Resize, ToTensor
-
+from tqdm import tqdm
 
 ########################################################################
 # This is a fully working simple example to use Accelerate
@@ -82,7 +82,7 @@ def training_function(config, args):
 
     # Sample hyper-parameters for learning rate, batch size, seed and a few other HPs
     lr = config["lr"]
-    num_epochs = int(config["num_epochs"])
+    num_epochs = args.num_epochs
     seed = int(config["seed"])
     batch_size = int(config["batch_size"])
     image_size = config["image_size"]
@@ -199,7 +199,15 @@ def training_function(config, args):
             resume_step -= starting_epoch * len(train_dataloader)
 
     # Now we train the model
-    for epoch in range(starting_epoch, num_epochs):
+    g_bar = tqdm(
+        range(starting_epoch, num_epochs),
+        desc=f"{starting_epoch=}, {overall_step=}",
+        position=0,
+        disable=not accelerator.is_local_main_process,
+    )
+    eval_metric = 0
+    best_metric = -1
+    for epoch in g_bar:
         model.train()
         if args.with_tracking:
             total_loss = 0
@@ -217,6 +225,8 @@ def training_function(config, args):
             # We keep track of the loss at each epoch
             if args.with_tracking:
                 total_loss += loss.detach().float()
+            g_bar.set_description(f"{epoch=}, {step=}: {loss=:.6f}, eval-acc={eval_metric:.2f}")
+
             accelerator.backward(loss)
             optimizer.step()
             lr_scheduler.step()
@@ -230,6 +240,7 @@ def training_function(config, args):
                     accelerator.save_state(output_dir)
         model.eval()
         accurate = 0
+        total = 0
         for step, batch in enumerate(eval_dataloader):
             # We could avoid this line since we set the accelerator with `device_placement=True`.
             batch = {k: v.to(accelerator.device) for k, v in batch.items()}
@@ -240,8 +251,9 @@ def training_function(config, args):
             predictions, references = accelerator.gather_for_metrics((predictions, batch["label"]))
             accurate_preds = predictions == references
             accurate += accurate_preds.long().sum()
+            total += len(accurate_preds)
 
-        eval_metric = accurate.item() / accelerator.gradient_state.samples_seen
+        eval_metric = accurate.item() / total # / accelerator.gradient_state.samples_seen
         # Use accelerator.print to print only on the main process.
         accelerator.print(f"epoch {epoch}: {100 * eval_metric:.2f}")
         if args.with_tracking:
@@ -254,10 +266,12 @@ def training_function(config, args):
                 step=overall_step,
             )
         if checkpointing_steps == "epoch":
-            output_dir = f"epoch_{epoch}"
+            output_dir = "best" # f"epoch_{epoch}"
             if args.output_dir is not None:
                 output_dir = os.path.join(args.output_dir, output_dir)
-            accelerator.save_state(output_dir)
+            if eval_metric > best_metric:
+                best_metric = eval_metric
+                accelerator.save_state(output_dir)
 
     if args.with_tracking:
         accelerator.end_training()
@@ -280,13 +294,13 @@ def main():
     parser.add_argument(
         "--checkpointing_steps",
         type=str,
-        default=None,
+        default="epoch",
         help="Whether the various states should be saved at the end of every n steps, or 'epoch' for each epoch.",
     )
     parser.add_argument(
         "--output_dir",
         type=str,
-        default=".",
+        default="data/ckpt",
         help="Optional save directory where all checkpoint folders will be stored. Default is the current working directory.",
     )
     parser.add_argument(
@@ -306,8 +320,14 @@ def main():
         default="logs",
         help="Location on where to store experiment tracking logs`",
     )
+    parser.add_argument(
+        "--num_epochs",
+        type=int,
+        default=10,
+        help="Whether the various states should be saved at the end of every n steps, or 'epoch' for each epoch.",
+    )
     args = parser.parse_args()
-    config = {"lr": 3e-2, "num_epochs": 3, "seed": 42, "batch_size": 64, "image_size": 224}
+    config = {"lr": 3e-2, "seed": 42, "batch_size": 64, "image_size": 224}
     training_function(config, args)
 
 
