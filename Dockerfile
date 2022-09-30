@@ -5,7 +5,7 @@ ENV LANG=C.UTF-8
 
 # Install base utilities
 RUN apt-get update \
-    && apt-get install -y wget \
+    && apt-get install -y wget git \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
