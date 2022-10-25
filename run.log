@@ -1,0 +1,21 @@
+./rprof 200 run.csv 
+profile_interval=200 ms
+log to run.csv
+timeout=10 s
+
+Driver version:  470.74 
+
+Found 4 devices
+
+Listing devices:
+0. NVIDIA GeForce GTX 1080 Ti 
+1. NVIDIA GeForce GTX 1080 Ti 
+2. NVIDIA GeForce GTX 1080 Ti 
+3. NVIDIA GeForce GTX 1080 Ti 
+t=1666720965.979210, cpu=27.6, mem=13.0, n_gpu=4, gpu=0, gpu_mem=0, gpu_power=66150, sm_clock=1645, gpu_mem_clock=5005, gpu=0, gpu_mem=0, gpu_power=9147, sm_clock=139, gpu_mem_clock=405, gpu=0, gpu_mem=0, gpu_power=9535, sm_clock=139, gpu_mem_clock=405, gpu=0, gpu_mem=0, gpu_power=9343, sm_clock=139, gpu_mem_clock=405
+t=1666720967.981400, cpu=47.6, mem=13.0, n_gpu=4, gpu=41, gpu_mem=13, gpu_power=70035, sm_clock=1721, gpu_mem_clock=5005, gpu=0, gpu_mem=0, gpu_power=9245, sm_clock=139, gpu_mem_clock=405, gpu=0, gpu_mem=0, gpu_power=9345, sm_clock=139, gpu_mem_clock=405, gpu=0, gpu_mem=0, gpu_power=8662, sm_clock=139, gpu_mem_clock=405
+t=1666720969.983855, cpu=24.0, mem=13.0, n_gpu=4, gpu=0, gpu_mem=0, gpu_power=66441, sm_clock=1645, gpu_mem_clock=5005, gpu=0, gpu_mem=0, gpu_power=9147, sm_clock=139, gpu_mem_clock=405, gpu=0, gpu_mem=0, gpu_power=9242, sm_clock=139, gpu_mem_clock=405, gpu=0, gpu_mem=0, gpu_power=9050, sm_clock=139, gpu_mem_clock=405
+t=1666720971.986345, cpu=49.4, mem=13.0, n_gpu=4, gpu=32, gpu_mem=10, gpu_power=68386, sm_clock=1657, gpu_mem_clock=5005, gpu=0, gpu_mem=0, gpu_power=9050, sm_clock=139, gpu_mem_clock=405, gpu=0, gpu_mem=0, gpu_power=9340, sm_clock=139, gpu_mem_clock=405, gpu=0, gpu_mem=0, gpu_power=9050, sm_clock=139, gpu_mem_clock=405
+t=1666720973.988922, cpu=13.5, mem=13.0, n_gpu=4, gpu=0, gpu_mem=0, gpu_power=66565, sm_clock=1645, gpu_mem_clock=5005, gpu=0, gpu_mem=0, gpu_power=8952, sm_clock=139, gpu_mem_clock=405, gpu=0, gpu_mem=0, gpu_power=9438, sm_clock=139, gpu_mem_clock=405, gpu=0, gpu_mem=0, gpu_power=9245, sm_clock=139, gpu_mem_clock=405
+
+elapsed 10039.137 ms
