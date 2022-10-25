@@ -10,7 +10,10 @@ wget https://www.robots.ox.ac.uk/\~vgg/data/pets/data/images.tar.gz
 
 tar xzf images.tar.gz
 
-# now just run 
+# train on single gpu
+python src/complete_cv_example.py --data_dir data/images 2>&1 | tee data/run-cv.log
+
+# train using two gpus
 torchrun --nproc_per_node 2 src/complete_cv_example.py --data_dir data/images 2>&1 | tee data/run-cv.log
 
 ```
@@ -19,6 +22,11 @@ torchrun --nproc_per_node 2 src/complete_cv_example.py --data_dir data/images 2>
 ## gantry
 
 ```bash
+# need to first create beaker dataset
+
+# beaker create dataset
+
+beaker dataset create --name test-images ./some-path
 
 # run using conda
 gantry run \
@@ -31,6 +39,12 @@ torchrun --nproc_per_node 2 \
 complete_cv_example.py \
 --data_dir /data 
 
+# build docker and create beaker image
+
+docker build -t test-cv-docker .
+
+beaker image create --name test-cv-docker test-cv-docker
+
 # run using beaker image
 gantry run \
 --workspace ai2/br \
@@ -41,19 +55,7 @@ gantry run \
 --dataset 'qicao/test-images:/data' -- \
 torchrun --nproc_per_node 2 src/complete_cv_example.py --data_dir /data 
 
-# build docker and create beaker image
-
-docker build -t test-cv-docker .
-
-beaker image create --name test-cv-docker test-cv-docker
-
 # --dry-run \
 # --save-spec beaker-spec.yaml \
-
-# beaker create dataset
-
-beaker dataset create --name test-images ./some-path
-
-
 
 ```
